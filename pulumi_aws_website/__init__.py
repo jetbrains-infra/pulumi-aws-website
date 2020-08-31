@@ -7,7 +7,7 @@ from pulumi_aws import cloudfront
 from pulumi_aws import route53
 from pulumi_aws import s3
 
-from website import config
+from pulumi_aws_website import config
 
 DEFAULT_ORIGIN_ID = 'S3ContentDefault'
 

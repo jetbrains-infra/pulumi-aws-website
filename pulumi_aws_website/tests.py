@@ -3,8 +3,8 @@ from typing import Optional, Tuple, List
 
 import pulumi
 
-from website import WebSite
-from website import config
+from pulumi_aws_website import WebSite
+from pulumi_aws_website import config
 
 
 class MyMocks(pulumi.runtime.Mocks):
@@ -54,10 +54,10 @@ class TestingWithMocks(unittest.TestCase):
         return pulumi.Output.all(website).apply(check_aliases)
 
     def test_check_default_behavior(self):
-        def check_defautl_behavior(args: List[WebSite]):
+        def check_default_behavior(args: List[WebSite]):
             ws = args[0]
             self.assertEqual(ws.default_cache_behavior.lambda_function_associations, [])
             self.assertEqual(ws.default_cache_behavior.allowed_methods, ['GET', 'HEAD'])
             self.assertEqual(ws.default_cache_behavior.cached_methods, ['GET', 'HEAD'])
 
-        return pulumi.Output.all(website).apply(check_defautl_behavior)
+        return pulumi.Output.all(website).apply(check_default_behavior)
