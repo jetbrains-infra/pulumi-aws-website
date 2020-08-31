@@ -25,7 +25,7 @@ class WebSite(pulumi.ComponentResource):
                  default_cache_behavior: config.CacheBehavior = None,
                  opts: pulumi.ResourceOptions = None):
         """
-        Constructs a WebSiteArgs.
+        Constructs a WebSite.
         :param stack: Stack name, prod or staging for example
         :param issue: Issue tracker ID
         :param additional_buckets_mapping: Map bucket to CloudFront origin path_pattern for example {"docs": "/docs/*"},
@@ -59,8 +59,8 @@ class WebSite(pulumi.ComponentResource):
             behavior.compress = True
             behavior.forwarded_values_cookies = 'none'
             behavior.forwarded_values_headers = None
-            behavior.path_pattern = None
             behavior.forwarded_values_query_string = True
+            behavior.path_pattern = None
             behavior.min_ttl = 0
             behavior.default_ttl = 3600
             behavior.max_ttl = 86400
@@ -80,9 +80,9 @@ class WebSite(pulumi.ComponentResource):
             f'website-{self.name}-{self.stack}-origin-access-identity',
             opts=pulumi.ResourceOptions(parent=self))
 
-        default_bucket = self._create_bucket('default', oai)
+        self.default_bucket = self._create_bucket('default', oai)
         default_origin = config.Origin(
-            domain_name=default_bucket.bucket_domain_name,
+            domain_name=self.default_bucket.bucket_domain_name,
             origin_id=pulumi.Output.from_input(DEFAULT_ORIGIN_ID),
             s3_origin_access_identity=oai.cloudfront_access_identity_path
         )

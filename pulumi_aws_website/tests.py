@@ -1,10 +1,7 @@
 import unittest
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple
 
-import pulumi
-
-from pulumi_aws_website import WebSite
-from pulumi_aws_website import config
+from pulumi_aws_website import *
 
 
 class MyMocks(pulumi.runtime.Mocks):
@@ -14,9 +11,6 @@ class MyMocks(pulumi.runtime.Mocks):
                      inputs: dict,
                      provider: Optional[str],
                      id_: Optional[str]) -> Tuple[str, dict]:
-        if type_ == 'aws:acm/certificate:Certificate':
-            state = {}
-            return name + '_id', dict(inputs, **state)
         return name + '_id', inputs
 
     def call(self, token, args, provider):
@@ -46,6 +40,7 @@ class TestingWithMocks(unittest.TestCase):
 
         return pulumi.Output.all(website).apply(check_tags)
 
+    @pulumi.runtime.test
     def test_check_aliases(self):
         def check_aliases(args: List[WebSite]):
             ws = args[0]
@@ -53,11 +48,24 @@ class TestingWithMocks(unittest.TestCase):
 
         return pulumi.Output.all(website).apply(check_aliases)
 
+    @pulumi.runtime.test
     def test_check_default_behavior(self):
         def check_default_behavior(args: List[WebSite]):
             ws = args[0]
             self.assertEqual(ws.default_cache_behavior.lambda_function_associations, [])
             self.assertEqual(ws.default_cache_behavior.allowed_methods, ['GET', 'HEAD'])
             self.assertEqual(ws.default_cache_behavior.cached_methods, ['GET', 'HEAD'])
+            self.assertEqual(ws.default_cache_behavior.forwarded_values_cookies, 'none')
+            self.assertEqual(ws.default_cache_behavior.forwarded_values_headers, None)
+            self.assertEqual(ws.default_cache_behavior.forwarded_values_query_string, True)
+            self.assertEqual(ws.default_cache_behavior.path_pattern, None)
+            self.assertEqual(ws.default_cache_behavior.min_ttl, 0)
+            self.assertEqual(ws.default_cache_behavior.default_ttl, 3600)
+            self.assertEqual(ws.default_cache_behavior.max_ttl, 86400)
+            self.assertEqual(ws.default_cache_behavior.target_origin_id, DEFAULT_ORIGIN_ID)
+            self.assertEqual(ws.default_cache_behavior.viewer_protocol_policy,
+                             config.VIEWER_PROTOCOL_POLICY_REDIRECT_TO_HTTPS)
+            self.assertEqual(ws.default_cache_behavior.lambda_function_associations, [])
+            self.assertTrue(ws.default_cache_behavior.compress)
 
         return pulumi.Output.all(website).apply(check_default_behavior)
