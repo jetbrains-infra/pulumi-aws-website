@@ -25,7 +25,9 @@ website = WebSite('test',
                   zones={
                       'ABCDEF123': ['test.jetbrains.com']
                   },
-                  viewer_certificate=config.ViewerCertificate(cloudfront_default_certificate=True)
+                  viewer_certificate=config.ViewerCertificate(cloudfront_default_certificate=True),
+                  custom_error_responses=[config.CustomErrorResponse(error_code=404, response_code=404,
+                                                                     response_page_path='/404-custom.html')]
                   )
 
 
@@ -69,3 +71,14 @@ class TestingWithMocks(unittest.TestCase):
             self.assertTrue(ws.default_cache_behavior.compress)
 
         return pulumi.Output.all(website).apply(check_default_behavior)
+
+    @pulumi.runtime.test
+    def test_check_custom_error_response(self):
+        def check_custom_error_response(args: List[WebSite]):
+            ws = args[0]
+            self.assertEqual(len(ws.custom_error_responses), 1)
+            self.assertEqual(ws.custom_error_responses[0].error_code, 404)
+            self.assertEqual(ws.custom_error_responses[0].response_code, 404)
+            self.assertEqual(ws.custom_error_responses[0].response_page_path, '/404-custom.html')
+
+        return pulumi.Output.all(website).apply(check_custom_error_response)
