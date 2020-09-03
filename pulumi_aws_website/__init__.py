@@ -23,6 +23,7 @@ class WebSite(pulumi.ComponentResource):
                  logging_config: config.LoggingConfig = None,
                  additional_buckets_mapping: Dict[str, str] = None,
                  default_cache_behavior: config.CacheBehavior = None,
+                 custom_error_responses: List[config.CustomErrorResponse] = None,
                  opts: pulumi.ResourceOptions = None):
         """
         Constructs a WebSite.
@@ -75,6 +76,11 @@ class WebSite(pulumi.ComponentResource):
             self.lambda_function_associations = []
         else:
             self.lambda_function_associations = lambda_function_associations
+
+        if custom_error_responses is None:
+            self.custom_error_responses = []
+        else:
+            self.custom_error_responses = custom_error_responses
 
         oai = cloudfront.OriginAccessIdentity(
             f'website-{self.name}-{self.stack}-origin-access-identity',
@@ -178,11 +184,8 @@ class WebSite(pulumi.ComponentResource):
                                                     origins=list(
                                                         map(lambda x: x.to_dict(), self.origins)),
                                                     tags=self.tags,
-                                                    custom_error_responses=[{
-                                                        'errorCode': 404,
-                                                        'responseCode': 404,
-                                                        'responsePagePath': '/404/index.html',
-                                                    }],
+                                                    custom_error_responses=list(map(lambda x: x.to_dict(),
+                                                                                    self.custom_error_responses)),
                                                     restrictions={
                                                         'geoRestriction': {
                                                             'restrictionType': 'none',

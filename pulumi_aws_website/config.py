@@ -190,3 +190,21 @@ class ViewerCertificate:
         if self.ssl_support_method is not None:
             output['sslSupportMethod'] = self.ssl_support_method
         return output
+
+
+class CustomErrorResponse:
+    error_code: int
+    response_code: int
+    response_page_path: str
+
+    def __init__(self, error_code: int, response_code: int, response_page_path: str):
+        self.error_code = error_code
+        self.response_code = response_code
+        self.response_page_path = response_page_path
+
+    def to_dict(self) -> Dict:
+        return {
+            'errorCode': self.error_code,
+            'responseCode': self.response_code,
+            'responsePagePath': self.response_page_path,
+        }
