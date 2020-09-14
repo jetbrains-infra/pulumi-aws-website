@@ -88,7 +88,7 @@ class WebSite(pulumi.ComponentResource):
 
         self.default_bucket = self._create_bucket('default', oai)
         default_origin = config.Origin(
-            domain_name=self.default_bucket.bucket_domain_name,
+            domain_name=self.default_bucket.bucket_regional_domain_name,
             origin_id=pulumi.Output.from_input(DEFAULT_ORIGIN_ID),
             s3_origin_access_identity=oai.cloudfront_access_identity_path
         )
@@ -105,7 +105,7 @@ class WebSite(pulumi.ComponentResource):
                 cb.target_origin_id = bucket.id
                 self.cache_behaviors.append(cb)
                 self.origins.append(config.Origin(
-                    domain_name=bucket.bucket_domain_name,
+                    domain_name=bucket.bucket_regional_domain_name,
                     origin_id=bucket.id,
                     s3_origin_access_identity=oai.cloudfront_access_identity_path)
                 )
